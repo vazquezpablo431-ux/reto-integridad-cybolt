@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Integridad Antisoborno | Cybolt</title>
+<meta name="description" content="Juego interactivo de sensibilización sobre cultura anticorrupción y antisoborno.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314203A'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23E8743B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#E8743B; --orange-dk:#C85A28;
+    --navy:#14203A; --navy-2:#1E2E4E;
+    --bg:#F6F4EF; --ink:#1B2233; --muted:#6A7180;
+    --line:#E4E0D7; --orange-soft:#FBE8DD; --navy-soft:#EBEEF4;
+    --green:#2E9E6B; --lime:#7FB03F; --amber:#E0A32E; --alert:#E8743B; --red:#D6473F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--ink);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px 16px; -webkit-font-smoothing:antialiased;
+  }
+  .app{width:100%;max-width:580px}
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:20px; overflow:hidden;
+    box-shadow:0 18px 50px -24px rgba(20,32,58,.35);
+  }
+  /* Top bar */
+  .topbar{
+    background:var(--navy); color:#fff; padding:16px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:700;letter-spacing:-.01em;font-size:15px}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(232,116,59,.22)}
+  .brand small{display:block;font-family:'Inter';font-weight:500;font-size:10.5px;color:#9aa3b8;letter-spacing:.05em;text-transform:uppercase}
+  .tag{font-size:11px;font-weight:600;color:#cdd4e4;background:rgba(255,255,255,.08);padding:6px 11px;border-radius:999px;white-space:nowrap}
+
+  /* Progress */
+  .progress-wrap{padding:16px 22px 0;display:none}
+  .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .p-block{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--orange-dk)}
+  .p-count{font-family:'Sora';font-weight:700;font-size:12px;color:var(--muted)}
+  .p-bar{height:8px;background:#EFECE4;border-radius:999px;overflow:hidden}
+  .p-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),#F0A06B);border-radius:999px;transition:width .45s cubic-bezier(.22,1,.36,1)}
+
+  .body{padding:26px 24px 28px}
+
+  /* Buttons */
+  .btn{
+    width:100%;border:none;cursor:pointer;font-family:'Sora';font-weight:700;font-size:16px;
+    background:var(--orange);color:#fff;padding:15px 20px;border-radius:13px;
+    transition:transform .12s ease, box-shadow .2s ease, background .2s;
+    box-shadow:0 10px 24px -10px rgba(232,116,59,.7);
+  }
+  .btn:hover{transform:translateY(-1px);background:#e0682c}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{background:var(--navy);box-shadow:0 10px 24px -12px rgba(20,32,58,.6)}
+  .btn.ghost:hover{background:var(--navy-2)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn:focus-visible{outline:3px solid #F4C39E;outline-offset:2px}
+
+  /* Intro */
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);margin-bottom:12px}
+  h1{font-family:'Sora';font-weight:800;font-size:29px;line-height:1.08;letter-spacing:-.02em;margin-bottom:14px}
+  h1 .hl{color:var(--orange)}
+  .intro-p{color:var(--ink);font-size:15px;line-height:1.6;margin-bottom:14px}
+  .note{
+    background:var(--navy-soft);border-left:4px solid var(--navy);border-radius:11px;
+    padding:13px 15px;font-size:13px;line-height:1.55;color:#3d4658;margin:6px 0 22px;
+  }
+  .note b{color:var(--navy)}
+  .mini-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .chip{font-size:11.5px;font-weight:600;color:var(--navy);background:var(--orange-soft);padding:6px 11px;border-radius:999px}
+
+  /* Question */
+  .qblock{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+  .qtext{font-family:'Sora';font-weight:600;font-size:20px;line-height:1.32;letter-spacing:-.01em;margin-bottom:20px}
+  .options{display:flex;flex-direction:column;gap:11px}
+  .opt{
+    text-align:left;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:13px;
+    padding:14px 15px;font-family:'Inter';font-size:14.5px;font-weight:500;color:var(--ink);
+    display:flex;align-items:center;gap:12px;transition:border-color .15s, background .15s, transform .1s;
+  }
+  .opt:hover{border-color:var(--orange);background:#FFFBF8}
+  .opt:focus-visible{outline:3px solid #F4C39E;outline-offset:2px}
+  .opt .key{
+    width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:700;font-size:13px;color:var(--muted);
+    transition:all .15s;
+  }
+  .opt.selected{border-color:var(--orange);background:var(--orange-soft);animation:tap .28s ease}
+  .opt.selected .key{background:var(--orange);border-color:var(--orange);color:#fff}
+  @keyframes tap{0%{transform:scale(1)}45%{transform:scale(.985)}100%{transform:scale(1)}}
+
+  .next-row{margin-top:20px;display:none}
+  .next-row.show{display:block}
+
+  /* Result */
+  .result{text-align:center}
+  .r-emoji{font-size:44px;margin-bottom:6px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+  .r-level{font-family:'Sora';font-weight:800;font-size:24px;letter-spacing:-.01em;margin-bottom:16px}
+  .meter-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .meter-label span:first-child{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .meter-label span:last-child{font-family:'Sora';font-weight:800;font-size:22px}
+  .r-meter{height:14px;background:#EFECE4;border-radius:999px;overflow:hidden;margin-bottom:6px}
+  .r-fill{height:100%;width:0%;border-radius:999px;transition:width .9s cubic-bezier(.22,1,.36,1)}
+  .r-hint{font-size:11.5px;color:var(--muted);text-align:right;margin-bottom:20px}
+  .r-score{font-size:13px;color:var(--muted);margin-bottom:18px}
+  .r-score b{color:var(--navy)}
+  .r-msg{background:var(--bg);border-radius:13px;padding:16px 18px;font-size:14.5px;line-height:1.6;color:var(--ink);text-align:left;margin-bottom:14px}
+  .r-rec{background:var(--orange-soft);border-left:4px solid var(--orange);border-radius:11px;padding:14px 16px;font-size:13.5px;line-height:1.55;text-align:left;color:#5a3c2a;margin-bottom:14px}
+  .r-rec b{color:var(--orange-dk)}
+  .r-disc{background:var(--navy);color:#dce2ee;border-radius:11px;padding:13px 16px;font-size:12.5px;line-height:1.55;text-align:left;margin-bottom:20px}
+  .r-disc b{color:var(--orange)}
+  .actions{display:flex;flex-direction:column;gap:10px}
+
+  .foot{text-align:center;font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5}
+
+  @media (max-width:480px){
+    .body{padding:22px 18px 24px}
+    h1{font-size:25px}
+    .qtext{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span><span>Cybolt<small>Integridad · Antisoborno</small></span></div>
+      <div class="tag" id="topTag">Dinámica de sensibilización</div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-top">
+        <span class="p-block" id="pBlock">Bloque</span>
+        <span class="p-count" id="pCount">0 / 10</span>
+      </div>
+      <div class="p-bar"><div class="p-fill" id="pFill"></div></div>
+    </div>
+
+    <div class="body" id="body"><!-- screens injected --></div>
+  </div>
+  <p class="foot">Juego interno de sensibilización · Cybolt · Cultura anticorrupción y antisoborno.</p>
+</div>
+
+<script>
+/* =========================================================
+   DATOS DE LAS PREGUNTAS  (aquí se controlan las preguntas)
+   Cada opción: { text, points }.  Más puntos = mayor riesgo ético.
+   ========================================================= */
+const QUESTIONS = [
+  // ---- BLOQUE A: Cultura de cumplimiento ----
+  { block: "Cultura de cumplimiento",
+    q: "¿Qué documento establece los principios esperados de comportamiento ético dentro de la organización?",
+    options: [
+      { text: "Código de Conducta Empresarial", points: 0 },
+      { text: "Manual de vacaciones", points: 20 },
+      { text: "Calendario de cumpleaños", points: 20 },
+      { text: "Catálogo de proveedores", points: 15 },
+    ] },
+  { block: "Cultura de cumplimiento",
+    q: "¿Qué debes hacer si identificas una posible conducta contraria a la ética o la integridad?",
+    options: [
+      { text: "Ignorarla para evitar problemas", points: 25 },
+      { text: "Comentarlo solo en el pasillo", points: 20 },
+      { text: "Reportarla mediante los canales establecidos", points: 0 },
+      { text: "Publicarlo en redes sociales", points: 30 },
+    ] },
+  { block: "Cultura de cumplimiento",
+    q: "¿Qué significa actuar con integridad en el entorno laboral?",
+    options: [
+      { text: "Hacer lo correcto incluso cuando nadie está mirando", points: 0 },
+      { text: "Hacer solo lo que conviene", points: 25 },
+      { text: "Seguir instrucciones aunque sean indebidas", points: 30 },
+      { text: "Evitar dejar evidencia", points: 35 },
+    ] },
+  { block: "Cultura de cumplimiento",
+    q: "¿Por qué es importante documentar aprobaciones, regalos, beneficios o decisiones sensibles?",
+    options: [
+      { text: "Para tener trazabilidad y transparencia", points: 0 },
+      { text: "Para complicar el proceso", points: 15 },
+      { text: "Para que nadie pregunte después", points: 20 },
+      { text: "Para simular cumplimiento", points: 35 },
+    ] },
+  { block: "Cultura de cumplimiento",
+    q: "¿Qué área debe participar cuando existe una duda sobre regalos, beneficios, conflictos de interés o cumplimiento?",
+    options: [
+      { text: "Cumplimiento / ESG / responsable correspondiente", points: 0 },
+      { text: "Nadie, cada quien decide", points: 30 },
+      { text: "Solo quien recibe el regalo", points: 25 },
+      { text: "El proveedor interesado", points: 35 },
+    ] },
+  // ---- BLOQUE B: Casos prácticos y personales ----
+  { block: "Caso práctico",
+    q: "¿Alguna vez has dado una \u201Cmordida\u201D para evitar una multa o agilizar un trámite?",
+    options: [
+      { text: "No, nunca", points: 0 },
+      { text: "Sí, una vez y sé que estuvo mal", points: 20 },
+      { text: "Sí, varias veces", points: 35 },
+      { text: "Sí, y lo veo normal", points: 45 },
+    ] },
+  { block: "Caso práctico",
+    q: "¿Has hecho trampa para ganar un juego, apuesta, dinámica o competencia?",
+    options: [
+      { text: "No", points: 0 },
+      { text: "Sí, pero en algo pequeño", points: 15 },
+      { text: "Sí, si nadie se da cuenta no pasa nada", points: 30 },
+      { text: "Sí, ganar es ganar", points: 40 },
+    ] },
+  { block: "Caso práctico",
+    q: "Si un proveedor te ofrece un regalo caro justo antes de una decisión importante, ¿qué harías?",
+    options: [
+      { text: "Lo rechazaría o lo reportaría conforme a la política", points: 0 },
+      { text: "Lo aceptaría si nadie se entera", points: 35 },
+      { text: "Lo aceptaría y luego veo cómo justificarlo", points: 45 },
+      { text: "Preguntaría antes de aceptarlo", points: 5 },
+    ] },
+  { block: "Caso práctico",
+    q: "Si detectas que alguien manipula información para quedar bien en un reporte, ¿qué harías?",
+    options: [
+      { text: "Reportarlo o escalarlo por el canal correspondiente", points: 0 },
+      { text: "No meterme", points: 20 },
+      { text: "Ayudarle si es mi amigo", points: 35 },
+      { text: "Usarlo como ventaja personal", points: 45 },
+    ] },
+  { block: "Caso práctico",
+    q: "Si pudieras obtener un beneficio personal usando información interna, ¿qué harías?",
+    options: [
+      { text: "No la usaría y seguiría los lineamientos aplicables", points: 0 },
+      { text: "Lo pensaría si el beneficio es pequeño", points: 20 },
+      { text: "Lo haría si no afecta a nadie directamente", points: 35 },
+      { text: "Lo haría si no hay forma de que me descubran", points: 50 },
+    ] },
+];
+
+/* =========================================================
+   NIVELES DE RESULTADO  (por porcentaje de riesgo, 0-100%)
+   ========================================================= */
+const LEVELS = [
+  { min: 0,  max: 20,  emoji: "🛡️", title: "Integridad blindada", color: "var(--green)",
+    msg: "Tus respuestas reflejan una buena orientación ética. Sigue así: la integridad también se entrena.",
+    rec: "Sigue reforzando la cultura de integridad y sé ejemplo para tu equipo." },
+  { min: 21, max: 40, emoji: "✅", title: "Riesgo bajo", color: "var(--lime)",
+    msg: "Vas bien, pero hay decisiones donde conviene detenerse, preguntar y documentar antes de actuar.",
+    rec: "Ante la duda: pausa, consulta a Cumplimiento/ESG y documenta antes de decidir." },
+  { min: 41, max: 60, emoji: "⚠️", title: "Zona gris", color: "var(--amber)",
+    msg: "Hay señales de alerta. No todo lo común es correcto. La cultura ética se fortalece cuando decides con transparencia.",
+    rec: "Repasa el Código de Conducta y usa los canales de reporte cuando algo no cuadre." },
+  { min: 61, max: 80, emoji: "🚨", title: "Alerta ética", color: "var(--alert)",
+    msg: "Tu resultado muestra conductas que podrían representar riesgos. Conviene revisar políticas, canales de reporte y criterios de integridad.",
+    rec: "Revisa las políticas de integridad y los canales de denuncia disponibles en Cybolt." },
+  { min: 81, max: 100, emoji: "🦹", title: "Modo villano corporativo", color: "var(--red)",
+    msg: "Resultado crítico… en modo juego. En la vida real, esto amerita pausa, reflexión y volver al camino de la integridad antes de que Compliance toque la puerta.",
+    rec: "Momento de pausa: revisa las políticas, acércate a Cumplimiento y recuerda que ningún atajo vale una sanción." },
+];
+
+/* ========================= ESTADO ========================= */
+let currentIndex = 0;
+let totalScore = 0;
+let selectedIdx = null;
+const MAX_SCORE = QUESTIONS.reduce((sum, q) => sum + Math.max(...q.options.map(o => o.points)), 0);
+
+const body = document.getElementById('body');
+const progressWrap = document.getElementById('progressWrap');
+const pFill = document.getElementById('pFill');
+const pCount = document.getElementById('pCount');
+const pBlock = document.getElementById('pBlock');
+const topTag = document.getElementById('topTag');
+
+/* ===================== PANTALLA INTRO ===================== */
+function renderIntro(){
+  progressWrap.style.display = "none";
+  topTag.textContent = "Dinámica de sensibilización";
+  body.innerHTML = `
+    <div class="eyebrow">Cultura anticorrupción y antisoborno</div>
+    <h1>¿Qué tan <span class="hl">anticorrupción</span> eres?</h1>
+    <p class="intro-p">Este juego refuerza la cultura anticorrupción y antisoborno con preguntas rápidas sobre buenas prácticas, decisiones cotidianas y situaciones comunes. La idea es reflexionar sobre cómo pequeñas acciones fortalecen —o debilitan— la integridad dentro y fuera de la organización.</p>
+    <div class="note"><b>Sin juzgar a nadie.</b> El resultado final es únicamente lúdico y de sensibilización. No representa una evaluación laboral, un diagnóstico psicológico ni un señalamiento personal.</div>
+    <div class="mini-legend">
+      <span class="chip">10 preguntas</span>
+      <span class="chip">~3 minutos</span>
+      <span class="chip">Anónimo</span>
+    </div>
+    <button class="btn" id="startBtn">Iniciar evaluación</button>
+  `;
+  document.getElementById('startBtn').addEventListener('click', startGame);
+}
+
+/* ===================== INICIAR JUEGO ===================== */
+function startGame(){
+  currentIndex = 0;
+  totalScore = 0;
+  selectedIdx = null;
+  progressWrap.style.display = "block";
+  topTag.textContent = "En curso";
+  renderQuestion();
+}
+
+/* ==================== RENDER PREGUNTA ==================== */
+function renderQuestion(){
+  const item = QUESTIONS[currentIndex];
+  const keys = ["A","B","C","D"];
+  selectedIdx = null;
+
+  pFill.style.width = (currentIndex / QUESTIONS.length * 100) + "%";
+  pCount.textContent = (currentIndex + 1) + " / " + QUESTIONS.length;
+  pBlock.textContent = item.block;
+
+  body.innerHTML = `
+    <div class="qblock">Pregunta ${currentIndex + 1} · ${item.block}</div>
+    <div class="qtext">${item.q}</div>
+    <div class="options" id="options">
+      ${item.options.map((o, idx) => `
+        <button class="opt" data-idx="${idx}">
+          <span class="key">${keys[idx]}</span><span>${o.text}</span>
+        </button>`).join('')}
+    </div>
+    <div class="next-row" id="nextRow">
+      <button class="btn ghost" id="nextBtn">${currentIndex === QUESTIONS.length - 1 ? 'Ver mi resultado' : 'Siguiente'}</button>
+    </div>
+  `;
+  body.querySelectorAll('.opt').forEach(btn => btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.idx))));
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+}
+
+/* ================= SELECCIONAR RESPUESTA ================= */
+function selectOption(idx){
+  selectedIdx = idx;
+  body.querySelectorAll('.opt').forEach((btn, i) => btn.classList.toggle('selected', i === idx));
+  document.getElementById('nextRow').classList.add('show');
+}
+
+/* ==================== SIGUIENTE / FIN ==================== */
+function nextQuestion(){
+  if(selectedIdx === null) return;
+  totalScore += QUESTIONS[currentIndex].options[selectedIdx].points;
+  currentIndex++;
+  if(currentIndex < QUESTIONS.length) renderQuestion();
+  else renderResult();
+}
+
+/* =========================================================
+   CÁLCULO DEL RESULTADO  (aquí se controla el resultado)
+   ========================================================= */
+function computeResult(){
+  let percent = Math.round(totalScore / MAX_SCORE * 100);
+  if(percent > 100) percent = 100;
+  if(percent < 0) percent = 0;
+  const level = LEVELS.find(l => percent >= l.min && percent <= l.max) || LEVELS[0];
+  return { total: totalScore, percent, level };
+}
+
+/* ===================== PANTALLA FINAL ===================== */
+function renderResult(){
+  pFill.style.width = "100%";
+  progressWrap.style.display = "none";
+  topTag.textContent = "Resultado";
+  const { total, percent, level } = computeResult();
+
+  body.innerHTML = `
+    <div class="result">
+      <div class="r-emoji">${level.emoji}</div>
+      <div class="r-level" style="color:${level.color}">${level.title}</div>
+
+      <div class="meter-label">
+        <span>Riesgo ético detectado</span>
+        <span style="color:${level.color}">${percent}%</span>
+      </div>
+      <div class="r-meter"><div class="r-fill" id="rFill" style="background:${level.color}"></div></div>
+      <div class="r-hint">Entre más bajo, mejor 😉</div>
+
+      <div class="r-score">Puntaje total: <b>${total}</b> de ${MAX_SCORE} puntos posibles</div>
+
+      <div class="r-msg">${level.msg}</div>
+      <div class="r-rec"><b>Recomendación:</b> ${level.rec}</div>
+      <div class="r-disc"><b>Recuerda:</b> este resultado es únicamente una dinámica de sensibilización. La integridad se construye con decisiones pequeñas, evidencia clara y cero atajos raros.</div>
+
+      <div class="actions">
+        <button class="btn" id="retryBtn">Volver a empezar</button>
+        <button class="btn ghost" id="shareBtn">Compartir resultado</button>
+      </div>
+    </div>
+  `;
+  requestAnimationFrame(() => { document.getElementById('rFill').style.width = percent + "%"; });
+  document.getElementById('retryBtn').addEventListener('click', restartGame);
+  document.getElementById('shareBtn').addEventListener('click', () => shareResult(percent, level.title));
+}
+
+/* ===================== REINICIAR ===================== */
+function restartGame(){
+  renderIntro();
+}
+
+/* ================= COMPARTIR RESULTADO ================= */
+function shareResult(percent, levelTitle){
+  const text = `Jugué el Juego de Integridad Antisoborno de Cybolt 🟠\nRiesgo ético detectado: ${percent}% — Nivel: ${levelTitle}\n¿Qué tan anticorrupción eres tú?`;
+  const btn = document.getElementById('shareBtn');
+  if(navigator.share){
+    navigator.share({ title: "Juego de Integridad Antisoborno | Cybolt", text }).catch(() => {});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(() => {
+      const prev = btn.textContent;
+      btn.textContent = "¡Copiado! Pégalo en Teams ✓";
+      setTimeout(() => { btn.textContent = prev; }, 2200);
+    }).catch(() => { btn.textContent = "Tu nivel: " + levelTitle; });
+  } else {
+    btn.textContent = "Tu nivel: " + levelTitle;
+  }
+}
+
+/* ===================== ARRANQUE ===================== */
+renderIntro();
+</script>
+</body>
+</html>
